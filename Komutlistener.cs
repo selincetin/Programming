@@ -147,7 +147,7 @@ namespace task_2
                     }
                     else
                     {
-                        Console.WriteLine("böyle bir kullanıcı bulunamadı");
+                        Console.WriteLine("böyle bir kullanıcı bulunamadı...");
                     }
                     break;
 
