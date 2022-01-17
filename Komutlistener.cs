@@ -31,7 +31,6 @@ namespace task_2
                     {
                         string komut = veri.Substring(1);
                         komutVariable = "";
-                        password = "";
                         string[] splitVeri = komut.Split(new char[] { ' ' }, 2);
 
                         if (splitVeri.Length > 1)
@@ -39,7 +38,7 @@ namespace task_2
                             komut = splitVeri[0];
                             komutVariable = splitVeri[1];
                         }
-                        ComputeSha256Hash(Program.players[komutVariable].password);
+                        password=ComputeSha256Hash(Program.players[komutVariable].password);
                         KomutHandle(komut, komutVariable,password);
                         
 
