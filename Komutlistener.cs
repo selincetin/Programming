@@ -19,8 +19,9 @@ namespace task_2
             Console.WriteLine("kullanıcı adı ve şifrenizi girin");
             string komutVariable = Console.ReadLine();
             string password= Console.ReadLine();
+            string password2=ComputeSha256Hash(password);
 
-            if (Program.players.ContainsKey(komutVariable) && password==Program.players[komutVariable].password)
+            if (Program.players.ContainsKey(komutVariable) && password2==Program.players[komutVariable].password)
             {
                 while (true)
                 {
@@ -38,7 +39,6 @@ namespace task_2
                             komut = splitVeri[0];
                             komutVariable = splitVeri[1];
                         }
-                        password=ComputeSha256Hash(Program.players[komutVariable].password);
                         KomutHandle(komut, komutVariable,password);
                         
 
@@ -53,7 +53,7 @@ namespace task_2
 
         }
         
-        private string ComputeSha256Hash(string rawData)
+        public string ComputeSha256Hash(string rawData)
         {
             // Create a SHA256   
             using (SHA256 sha256Hash = SHA256.Create())
@@ -119,11 +119,11 @@ namespace task_2
                         string passwordP = ComputeSha256Hash(password);
                         using var cmd = new NpgsqlCommand("INSERT INTO users(name,score,password) VALUES(@player_name,0,@password)", Con);
                         cmd.Parameters.AddWithValue("player_name", komutVariable);
-                        cmd.Parameters.AddWithValue("password",password);
+                        cmd.Parameters.AddWithValue("password",passwordP);
                         cmd.ExecuteNonQuery();
                         Console.WriteLine(komutVariable + " adlı kullanıcı oluşturuldu.");
                         cmd.Dispose();
-                        new Player(komutVariable, 0, password);
+                        new Player(komutVariable, 0, passwordP);
                     }
 
                     break;
@@ -173,7 +173,23 @@ namespace task_2
                     }
                     break;
 
-            }
+                case "password":
+                    {
+                        foreach (var item in Program.players)
+                        {
+                            string passwords=ComputeSha256Hash(item.Value.password);
+                            using var cmd = new NpgsqlCommand("UPDATE users SET password=@password WHERE name=@player_name", Con);
+                            cmd.Parameters.AddWithValue("player_name", item.Key);
+                            cmd.Parameters.AddWithValue("password",passwords);
+                            cmd.ExecuteNonQuery();
+                            Console.WriteLine("şifreler gizlendi");
+                            cmd.Dispose();
+                        }
+                                             
+                    }
+                    break;
+
+            }  
 
         }
     }
