@@ -18,10 +18,10 @@ namespace task_2
             Console.WriteLine("Eğer mevcut komutları bilmiyorsanız '/help' yazarak komutlara ulaşabilirsiniz.");
             Console.WriteLine("kullanıcı adı ve şifrenizi girin");
             string komutVariable = Console.ReadLine();
-            string password= Console.ReadLine();
-            string password2=ComputeSha256Hash(password);
+            string password = Console.ReadLine();
+            password=ComputeSha256Hash(password);
 
-            if (Program.players.ContainsKey(komutVariable) && password2==Program.players[komutVariable].password)
+            if (Program.players.ContainsKey(komutVariable) && password==Program.players[komutVariable].password)
             {
                 while (true)
                 {
@@ -53,7 +53,7 @@ namespace task_2
 
         }
         
-        public string ComputeSha256Hash(string rawData)
+        private string ComputeSha256Hash(string rawData)
         {
             // Create a SHA256   
             using (SHA256 sha256Hash = SHA256.Create())
@@ -173,22 +173,33 @@ namespace task_2
                     }
                     break;
 
-                case "password":
+                  
+                case "changepassword":
+
+                    if (Program.players.ContainsKey(komutVariable))
                     {
-                        foreach (var item in Program.players)
+                        Console.WriteLine("kullanıcının mevcut şifresini giriniz:");
+                        password = Console.ReadLine();
+                        password=ComputeSha256Hash(password);
+                        if (password == Program.players[komutVariable].password)
                         {
-                            string passwords=ComputeSha256Hash(item.Value.password);
-                            using var cmd = new NpgsqlCommand("UPDATE users SET password=@password WHERE name=@player_name", Con);
-                            cmd.Parameters.AddWithValue("player_name", item.Key);
-                            cmd.Parameters.AddWithValue("password",passwords);
+                            Console.WriteLine("yeni şifreyi giriniz");
+                            password= Console.ReadLine();
+                            password = ComputeSha256Hash(password);
+                            using var cmd = new NpgsqlCommand("UPDATE users SET password=@password WHERE name=@player_name;", Con);
+                            cmd.Parameters.AddWithValue("player_name", komutVariable);
+                            cmd.Parameters.AddWithValue("password", password);
                             cmd.ExecuteNonQuery();
-                            Console.WriteLine("şifreler gizlendi");
+                            Console.WriteLine("işlem başarıyla gerçekleştirildi.");
                             cmd.Dispose();
                         }
-                                             
+                        
+                    }
+                    else
+                    {
+                        Console.WriteLine("böyle bir kullanıcı bulunamadı.");
                     }
                     break;
-
             }  
 
         }
